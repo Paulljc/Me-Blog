@@ -1,0 +1,32 @@
+header{
+  height: 300px;
+  background-image: url('/public/images/bg2.jpg');
+  background-repeat: repeat-x;
+  background-position: -25px 0;
+  -webkit-background-size: cover;
+  background-size: 100% 300px;
+}
+.articleInfo{
+  margin-bottom: 8px !important;
+}
+.borderBottom1{
+  border-bottom: 1px solid rgba(160,160,160,0.2);
+}
+
+/*html{height:100%;}*/
+
+body{min-height:100%;margin:0;padding:0;position:relative;}
+/*设置body的高度至少充满整个屏幕，并且body作为footer绝对定位的参考节点*/
+
+section{
+  padding-bottom:100px;/*padding-bottom值大于等于footer的height值，以保证section的内容能够全部显示出来而不被footer遮盖；*/
+}
+
+/*绝对定位+固定高度*/
+footer{
+  width: 100%;
+  height:85px;   /* footer的高度一定要是固定值*/
+  position:absolute;
+  /*bottom:0px*/;
+  background: #333;
+}
