@@ -14,4 +14,29 @@ npm install 安装依赖包
 
 都开启好了的话，用 node app.js 启动即可
 
+技术栈
+【前端】
+
+HTML/CSS/JS：前端三剑客
+
+ES6：ECMAScript 2015 mongoose操作经常会涉及到promise
+
+Bootstrap：页面 UI 框架，天然响应式，但是样式烂大街...
+
+【后端】
+
+swig：是一个可在客户端也可在服务端使用的模板引擎,语法简单，接近编程语言，主要用来生成 HTML 
+
+Node.js：整个后端由 Node.js 驱动；用 npm 安装资源文件
+
+Express：一个基于 Node.js 平台的 web 开发框架，由路由和中间件构成
+
+【数据库】
+
+mongoDB：进行数据存储的 NoSQL 数据库(文档型)
+
+mongoose：Node.js 的 mongodb 驱动软件包，是进行 mongoDB 快速建模的工具
+
 注意我代码里数据库 Schema 用户部分数据是开启了默认身份是管理员，你第一次上去可以先注册，然后自己修改代码，改为普通用户，重启即可。
+
+最近在用 koa2 和 mysql 重构此项目，所以不做过多细节讲解。
