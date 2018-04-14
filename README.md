@@ -14,8 +14,9 @@ npm install 安装依赖包
 
 都开启好了的话，用 node app.js 启动即可
 
-技术栈
-前端
+### 技术栈
+
+#### 前端
 
 HTML/CSS/JS：前端三剑客
 
