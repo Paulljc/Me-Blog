@@ -1,20 +1,18 @@
-//1.加载express
+// 加载express
 var express = require('express');
-
-//2.使用路由
+// 使用路由
 var router = express.Router();
-//9.引入用户表model
+// 引入用户表model
 var User = require('../models/User');
-//16。引入分类模型
+// 引入分类模型
 var Category = require('../models/Category');
-//26 引入内容模型
+// 引入内容模型
 var Content = require('../models/Content');
 
 
-//5.admin统一管理，不是管理员的话不让进入
+// admin统一管理，不是管理员的话不让进入
 router.use(function(req,res,next) {
 	if (!req.userInfo.isAdmin) {
-
 		//当前用户是非管理员
 		res.send('对不起，只有管理员才可以进入后台管理！');
 		return false;
@@ -22,25 +20,24 @@ router.use(function(req,res,next) {
 	next();
 });
 
-//6.后台首页
+// 后台首页
 router.get('/',function(req,res,next) {
-
 	res.render('admin/index',{
-		userInfo:req.userInfo	//拿到cookie信息
+		userInfo:req.userInfo	// 拿到cookie信息
 	});
 });
 
 
-//7.用户管理
+// 用户管理
 router.get('/user',function(req,res,next) {
 
 	/* 
-	* 8.从数据库中读取所有的用户数据
-	* 9.limit(Number)：限制获取的数据条数
-	* 10.skip(2);忽略数据的条数
+	*  从数据库中读取所有的用户数据
+	*  limit(Number)：限制获取的数据条数
+	*  skip(2);忽略数据的条数
 	* 
-	* 每页显示两条
-	* 1 : 1-2 skip:0 ->当前页-1 * limit
+	*  每页显示两条
+	* 1 : 1-2 skip:0 -> 当前页-1 * limit
 	* 2 : 3-4 skip:2
 	**/
 
@@ -48,64 +45,60 @@ router.get('/user',function(req,res,next) {
 	var limit = 10;
 	var pages = 0;
 
-	//11.统计数据的总条数
+	// 统计数据的总条数
 	User.count().then(function(count) {
 
-		//12.限制
+		// 限制
 		// 计算总页数	ceil天花板
 		pages = Math.ceil( count/limit );
-		//取值不能超过pages
+		// 取值不能超过pages
 		page = Math.min( page,pages );
-		//取值不能小于1
+		// 取值不能小于1
 		page = Math.max( page,1 );
 
-		var skip = (page - 1)*limit;//每次跳过多少条
+		var skip = (page - 1)*limit; // 每次跳过多少条
 
 		User.find().limit(limit).skip(skip).then(function( users ) {
-			//8.1传递数据上
+			// 传递数据上
 			res.render('admin/user_index',{
-				userInfo:req.userInfo,	//封装信息 渲染给前端
-				users:users,//用户数据
-				count:count,//总条数
-				pages:pages,//总页数
-				page:page,//当前页
-				limit:limit//每页显示多少条
-
+				userInfo:req.userInfo,	// 封装信息 渲染给前端
+				users:users, // 用户数据
+				count:count, // 总条数
+				pages:pages, // 总页数
+				page:page, 	 // 当前页
+				limit:limit  // 每页显示多少条
 			});
 		});
 	});
 });
 
-//13.分类首页
+// 分类首页
 router.get('/category',function(req,res,next) {
 
-	// 18.
 	var page = Number(req.query.page || 1);
 	var limit = 10;
 	var pages = 0;
 
-	//11.统计数据的总条数
+	// 统计数据的总条数
 	Category.count().then(function(count) {
 
-		//12.限制
 		// 计算总页数
 		pages = Math.ceil( count/limit );
-		//取值不能超过pages
+		// 取值不能超过pages
 		page = Math.min( page,pages );
-		//取值不能小于1
+		// 取值不能小于1
 		page = Math.max( page,1 );
 
 		var skip = (page - 1)*limit;
 
 		/*
-		* 21.查询的数据的排序
+		*   查询的数据的排序
 		*	sort()
 		*	传一个的对象,
 		*	1:升序
 		*	-1:降序
 		*/
 		Category.find().sort({_id:-1}).limit(limit).skip(skip).then(function( categorise ) {
-			//8.1传递数据上
 			res.render('admin/category_index',{
 				userInfo:req.userInfo,
 				categorise:categorise,
@@ -113,13 +106,12 @@ router.get('/category',function(req,res,next) {
 				pages:pages,
 				page:page,
 				limit:limit
-
 			});
 		});
 	});
 });
 
-//14.分类添加
+// 分类添加
 router.get('/category/add',function(req,res) {
 
 	res.render('admin/category_add',{
@@ -127,10 +119,10 @@ router.get('/category/add',function(req,res) {
 	});
 });
 
-//15.分类保存
+// 分类保存
 router.post('/category/add',function(req,res) {
 
-	//17.req.body就是post数据,因为用了body-parser的urlencoded属性
+	// req.body就是post数据,因为用了body-parser的urlencoded属性
 	var name = req.body.name || '';
 
 	if (name=='') {
@@ -141,22 +133,22 @@ router.post('/category/add',function(req,res) {
 		return false;
 	}
 
-	//数据库中是否有相同分类名称
+	// 数据库中是否有相同分类名称
 	Category.findOne({
 		name:name
 	}).then(function(result) {
 		if (result) {
 
-			//数据库中已经存在该分类
+			// 数据库中已经存在该分类
 			res.render('admin/error',{
 				userInfo:req.userInfo,
 				message:'分类已经存在'
 			});
 
-			//不在走then这个方法了
+			// 不在走then这个方法了
 			return Promise.reject();
 		}else{
-			//数据库不存在该分类，可以保存
+			// 数据库不存在该分类，可以保存
 			return new Category({
 				name:name
 			}).save();
@@ -165,15 +157,15 @@ router.post('/category/add',function(req,res) {
 		res.render('admin/success',{
 			userInfo:req.userInfo,
 			message:'分类保存成功',
-			url:'/admin/category'	//此属性为了让页面跳转
+			url:'/admin/category'	// 此属性为了让页面跳转
 		})
 	});
 });
 
-// 19.分类的修改
+//  分类的修改
 router.get('/category/edit',function(req,res) {
 
-	//获取要修改的分类信息，并且用表单的形式展现出来
+	// 获取要修改的分类信息，并且用表单的形式展现出来
 	var id = req.query.id || '';
 
 	Category.findOne({
@@ -193,13 +185,13 @@ router.get('/category/edit',function(req,res) {
 	});
 });
 
-// 19.分类的修改保存
+//  分类的修改保存
 router.post('/category/edit',function(req,res) {
 
-	//get的到请求的id
+	// get的到请求的id
 	var id = req.query.id || '';
 
-	//获取post提交的数据
+	// 获取post提交的数据
 	var name = req.body.name || '';
 
 	Category.findOne({
@@ -212,8 +204,7 @@ router.post('/category/edit',function(req,res) {
 			});
 			return Promise.reject();
 		}else{
-			
-			//当用户没有做任何修改的提交的时候
+			// 当用户没有做任何修改的提交的时候
 			if ( name == category.name) {
 				res.render('admin/success',{
 					userInfo:req.userInfo,
@@ -222,7 +213,7 @@ router.post('/category/edit',function(req,res) {
 				});
 				return Promise.reject();
 			}else{
-				//要修改的分类名称是否已经在数据库中存在
+				// 要修改的分类名称是否已经在数据库中存在
 				return Category.findOne({
 					_id:{$ne:id},	//$ne 表示不相等
 					name:name
@@ -252,10 +243,10 @@ router.post('/category/edit',function(req,res) {
 	});
 });
 
-// 20.分类的删除
+// 分类的删除
 router.get('/category/delete',function(req,res) {
 	
-	//获取要删除的分类ID
+	// 获取要删除的分类ID
 	var id = req.query.id || '';
 
 	Category.remove({
@@ -269,23 +260,21 @@ router.get('/category/delete',function(req,res) {
 	});
 });
 
-//22.内容首页
+// 内容首页
 router.get('/content',function(req,res) {
 	
-	//28.内容首页
 	var page = Number(req.query.page || 1);
 	var limit = 10;
 	var pages = 0;
 
-	//统计数据的总条数
+	// 统计数据的总条数
 	Content.count().then(function(count) {
 
-		//限制
 		// 计算总页数
 		pages = Math.ceil( count/limit );
-		//取值不能超过pages
+		// 取值不能超过pages
 		page = Math.min( page,pages );
-		//取值不能小于1
+		// 取值不能小于1
 		page = Math.max( page,1 );
 
 		var skip = (page - 1)*limit;
@@ -303,7 +292,7 @@ router.get('/content',function(req,res) {
 		*	这个参数是contens的category字段
 		**/
 		Content.find().sort({addTime:-1}).limit(limit).skip(skip).populate(['category','user']).then(function( contents ) {
-			//传递数据上
+			// 传递数据
 			res.render('admin/content_index',{
 				userInfo:req.userInfo,
 				contents:contents,
@@ -311,18 +300,15 @@ router.get('/content',function(req,res) {
 				pages:pages,
 				page:page,
 				limit:limit
-
 			});
 		});
 	});
 });
 
-//23.内容添加页面
+// 内容添加页面
 router.get('/content/add',function(req,res) {
 	
-	// 24.
 	Category.find().sort({_id:-1}).then(function(categorise) {
-		//23.1
 		res.render('admin/content_add',{
 			userInfo:req.userInfo,
 			categorise:categorise
@@ -331,7 +317,7 @@ router.get('/content/add',function(req,res) {
 });
 
 
-//25.内容保存
+// 内容保存
 router.post('/content/add',function(req,res) {
 
 	if (req.body.category == '') {
@@ -351,7 +337,7 @@ router.post('/content/add',function(req,res) {
 	};
 	
 	
-	//27添加内容
+	// 添加内容
 	new Content({
 		category:req.body.category,
 		title:req.body.title,
@@ -367,32 +353,28 @@ router.post('/content/add',function(req,res) {
 	});
 });
 
-//30	修改内容
+// 修改内容
 router.get('/content/edit',function(req,res) {
 
 	var id = req.query.id || '';
 
-	//33
 	var categorise = [];
 
-	//32
 	Category.find().sort({_id:-1}).then(function(result) {
-		// 34
+		
 		categorise = result;
 	
-		//31,,这里做了修改,复制粘贴，然后又调整了一下
+		// 这里做了修改,复制粘贴，然后又调整了一下
 		return Content.findOne({
 			_id:id
-		}).populate('category');
-		//这里关联第二个表
-
+		}).populate('category');// 这里关联第二个表
+		
 	}).then(function(content) {
 		if (!content) {
 			res.render('admin/error',{
 				userInfo:req.userInfo,
 				message:'内容不存在'
 			});
-
 			return Promise.reject();
 		}else{
 			res.render('admin/content_edit',{
@@ -405,7 +387,7 @@ router.get('/content/edit',function(req,res) {
 });
 
 
-//35.保存修改内容
+// 保存修改内容
 router.post('/content/edit',function(req,res) {
 	var id = req.query.id || '';
 
@@ -440,11 +422,10 @@ router.post('/content/edit',function(req,res) {
 			url:'/admin/content/edit?id=' + id
 		});
 	});
-
 });
 
 
-//36内容的删除
+// 内容的删除
 router.get('/content/delete',function(req,res) {
 	var id = req.query.id || '';
 
@@ -458,5 +439,6 @@ router.get('/content/delete',function(req,res) {
 		});
 	});
 });
-//3.导出对象
+
+// 导出对象
 module.exports = router;
